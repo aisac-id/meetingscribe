@@ -1,0 +1,16 @@
+{
+  "manifest_version": 3,
+  "name": "MeetingScribe — Local Whisper Meeting Transcription",
+  "version": "1.0.0",
+  "description": "Transcribe meetings entirely on-device with Whisper WASM. Live mic or demo audio, timestamped transcript, action items & decisions, TXT/MD/JSON export. No cloud.",
+  "permissions": ["storage"],
+  "action": {
+    "default_title": "Open MeetingScribe",
+    "default_icon": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" }
+  },
+  "background": { "service_worker": "background.js" },
+  "icons": { "16": "icons/icon16.png", "48": "icons/icon48.png", "128": "icons/icon128.png" },
+  "content_security_policy": {
+    "extension_pages": "script-src 'self' 'wasm-unsafe-eval'; object-src 'self'"
+  }
+}

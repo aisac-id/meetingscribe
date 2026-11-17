@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MeetingScribe — Local Whisper Transcription</title>
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
+      <rect x="12" y="4" width="8" height="14" rx="4" fill="none" stroke="#f59e0b" stroke-width="2.2"/>
+      <path d="M8 14a8 8 0 0 0 16 0M16 22v5M11 27h10" fill="none" stroke="#f59e0b" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M24 6l4-2M24 10h4" stroke="#fbbf24" stroke-width="1.6" stroke-linecap="round"/>
+    </svg>
+    <div class="brand-text">
+      <h1>MeetingScribe</h1>
+      <span>local Whisper transcription · no cloud</span>
+    </div>
+  </div>
+  <div class="pills">
+    <span class="pill" id="pillModel">MODEL …</span>
+    <span class="pill" id="pillWords">WORDS 0</span>
+    <span class="pill" id="pillWpm">WPM –</span>
+  </div>
+</header>
+
+<div class="status-banner" id="statusBanner">
+  <span class="status-icon" id="statusIcon"></span>
+  <div class="status-text">
+    <strong id="statusTitle">Loading model</strong>
+    <span id="statusHint">Fetching Whisper tiny.en from local bundle…</span>
+    <div class="load-bar" id="loadBar"><div id="loadFill"></div></div>
+  </div>
+  <div class="status-actions">
+    <button class="btn ghost" id="btnSound">SOUND ON</button>
+  </div>
+</div>
+
+<main class="layout">
+  <section class="main-col">
+    <div class="source-bar">
+      <span class="src-label">SOURCE</span>
+      <button class="btn src active" id="btnDemo">DEMO MEETING</button>
+      <button class="btn src" id="btnLive">LIVE MIC</button>
+      <button class="btn record" id="btnRecord" hidden>● RECORD</button>
+      <span class="src-note" id="srcNote">Bundled 27s meeting · espeak voice</span>
+    </div>
+
+    <div class="card transcript-card">
+      <div class="card-head">
+        <h2>Transcript</h2>
+        <div class="head-tools">
+          <input type="search" id="search" placeholder="Filter transcript…" autocomplete="off">
+          <label class="chk"><input type="checkbox" id="tScroll" checked> auto-scroll</label>
+        </div>
+      </div>
+      <div class="transcript" id="transcript">
+        <p class="empty" id="emptyMsg">Model loading… the demo transcript will appear here.</p>
+      </div>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat"><b id="stDur">0:00</b><span>audio length</span></div>
+      <div class="stat"><b id="stSeg">0</b><span>segments</span></div>
+      <div class="stat"><b id="stWords">0</b><span>words</span></div>
+      <div class="stat"><b id="stWpm">–</b><span>words/min</span></div>
+      <div class="stat"><b id="stLoad">–</b><span>model load</span></div>
+      <div class="stat"><b id="stRtf">–</b><span>realtime factor</span></div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><h2>Export</h2></div>
+      <div class="btn-row">
+        <button class="btn" id="btnTxt">TXT</button>
+        <button class="btn" id="btnMd">MARKDOWN</button>
+        <button class="btn" id="btnJson">JSON</button>
+        <button class="btn ghost" id="btnClear">CLEAR</button>
+      </div>
+    </div>
+  </section>
+
+  <aside class="side-col">
+    <div class="card">
+      <div class="card-head"><h2>Action items</h2><span class="count" id="actCount">0</span></div>
+      <ul class="insight-list" id="actions"><li class="none">None yet.</li></ul>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Decisions</h2><span class="count" id="decCount">0</span></div>
+      <ul class="insight-list" id="decisions"><li class="none">None yet.</li></ul>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Keywords</h2></div>
+      <div class="chips" id="keywords"><span class="none">—</span></div>
+    </div>
+    <div class="card">
+      <div class="card-head"><h2>Settings</h2></div>
+      <label class="slider-row"><span>Live chunk length <b id="vChunk">8s</b></span>
+        <input type="range" id="tChunk" min="4" max="15" step="1" value="8"></label>
+      <p class="micro">Shorter chunks feel more live; longer chunks give Whisper more context. Demo always transcribes the whole clip with timestamps.</p>
+    </div>
+    <div class="card log-card">
+      <div class="card-head"><h2>Events</h2><button class="btn tiny ghost" id="btnClearLog">CLEAR</button></div>
+      <ul class="log" id="log"></ul>
+    </div>
+  </aside>
+</main>
+
+<footer class="foot">
+  <span>Audio is transcribed in-page by Whisper WASM. Nothing is uploaded or stored.</span>
+  <button class="btn tiny ghost" id="btnHelp">HELP</button>
+</footer>
+
+<div class="modal" id="helpModal" hidden>
+  <div class="modal-box">
+    <h2>How MeetingScribe works</h2>
+    <p><b>Speech recognition.</b> OpenAI's Whisper (tiny.en, quantized) runs in your browser via transformers.js + ONNX Runtime WASM. The model and runtime are bundled — no network calls at runtime.</p>
+    <p><b>Demo.</b> A bundled 27-second synthetic meeting (espeak voice) is transcribed with word-level timestamps so you can see the full pipeline without a microphone.</p>
+    <p><b>Live.</b> Your mic is recorded in chunks (4–15 s). Each chunk is decoded to 16 kHz mono and transcribed locally, then appended with a timestamp.</p>
+    <p><b>Insights.</b> Action items (owners, deadlines) and decisions are extracted with transparent regex rules — not a black box. Keywords are simple frequency counts.</p>
+    <p><b>Limits.</b> tiny.en is English-only and optimised for speed over accuracy; expect occasional errors on names, numbers and heavy accents. It is a note-taking aid, not a verbatim court record.</p>
+    <button class="btn primary" id="btnCloseHelp">GOT IT</button>
+  </div>
+</div>
+
+<div class="toast" id="toast" hidden></div>
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
